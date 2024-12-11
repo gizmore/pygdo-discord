@@ -7,6 +7,7 @@ from gdo.core.GDO_Permission import GDO_Permission
 from gdo.core.GDO_Server import GDO_Server
 from gdo.core.GDO_Session import GDO_Session
 from gdo.core.GDO_UserPermission import GDO_UserPermission
+from gdo.core.GDT_UserType import GDT_UserType
 
 if TYPE_CHECKING:
     from gdo.discord.connector.Discord import Discord
@@ -30,6 +31,7 @@ class DiscordClient(discord.Client):
     async def on_ready(self):
         Logger.debug("Connected to Discord!")
         dog = self.get_server().get_or_create_user(str(self.user.id), self.user.name)
+        dog.save_val('user_type', GDT_UserType.CHAPPY)
         GDO_UserPermission.grant(dog, GDO_Permission.ADMIN)
         GDO_UserPermission.grant(dog, GDO_Permission.STAFF)
         self._connector._dog = dog
