@@ -30,7 +30,7 @@ class DiscordClient(discord.Client):
 
     async def on_ready(self):
         Logger.debug("Connected to Discord!")
-        dog = await self.get_server().get_or_create_user(str(self.user.id), self.user.name)
+        dog = self.get_server().get_or_create_user(str(self.user.id), self.user.name)
         dog.save_val('user_type', GDT_UserType.CHAPPY)
         GDO_UserPermission.grant(dog, GDO_Permission.ADMIN)
         GDO_UserPermission.grant(dog, GDO_Permission.STAFF)
@@ -39,7 +39,7 @@ class DiscordClient(discord.Client):
     async def on_message(self, message):
         Application.tick()
         serv = self.get_server()
-        user = await serv.get_or_create_user(str(message.author.id), message.author.display_name)
+        user = serv.get_or_create_user(str(message.author.id), message.author.display_name)
         if self._connector.gdo_get_dog_user() != user:
             chan = None
             if message.channel:
