@@ -63,7 +63,7 @@ class module_discord(GDO_Module):
     ##########
     # Module #
     ##########
-    async def gdo_init(self):
+    def gdo_init(self):
         Connector.register(Discord)
 
     def gdo_install(self):
