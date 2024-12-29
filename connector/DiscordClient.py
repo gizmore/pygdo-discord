@@ -7,6 +7,7 @@ from gdo.base.Message import Message
 from gdo.base.Render import Mode
 from gdo.core.GDO_Permission import GDO_Permission
 from gdo.core.GDO_Server import GDO_Server
+from gdo.core.GDO_Session import GDO_Session
 from gdo.core.GDO_UserPermission import GDO_UserPermission
 from gdo.core.GDT_UserType import GDT_UserType
 
