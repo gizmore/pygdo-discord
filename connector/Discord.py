@@ -49,7 +49,6 @@ class Discord(Connector):
         text = message._result
         user = message._env_user
         Logger.debug(f"{user.render_name()} << {text}")
-        usr = self._client.get_user(int(user.get_name()))
-        chunks = Strings.split_boundary(text, 4096)
-        for chunk in chunks:
-            await usr.send(chunk)
+        if usr := user._discord_user:
+            for chunk in Strings.split_boundary(text, 4096):
+                await usr.send(chunk)
