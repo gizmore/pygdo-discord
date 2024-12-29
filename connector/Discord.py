@@ -19,7 +19,7 @@ class Discord(Connector):
     def get_render_mode(self) -> Mode:
         return Mode.TXT
 
-    def gdo_connect(self):
+    def gdo_connect(self) -> bool:
         from gdo.discord.module_discord import module_discord
         Logger.debug("Connecting to discord.")
         intents = discord.Intents.default()
@@ -41,7 +41,7 @@ class Discord(Connector):
         prefix = f'{message._env_user.render_name()}: ' if not message._thread_user else ''
         text = f"{prefix}{text}"
         chan = self._client.get_channel(int(channel.get_name()))
-        chunks = Strings.split_boundary(text, 4096)
+        chunks = Strings.split_boundary(text, 3900)
         for chunk in chunks:
             await chan.send(chunk)
 
@@ -49,6 +49,6 @@ class Discord(Connector):
         text = message._result
         user = message._env_user
         Logger.debug(f"{user.render_name()} << {text}")
-        if usr := user._discord_user:
-            for chunk in Strings.split_boundary(text, 4096):
+        if usr := user._network_user:
+            for chunk in Strings.split_boundary(text, 3900):
                 await usr.send(chunk)

@@ -40,11 +40,12 @@ class DiscordClient(discord.Client):
         Logger.debug("Incoming message")
         serv = self.get_server()
         user = serv.get_or_create_user(str(message.author.id), message.author.display_name)
-        user._discord_user = message.author
+        user._network_user = message.author
         if self._connector.gdo_get_dog_user() != user:
             chan = None
             if message.channel.type != discord.ChannelType.private:
                 chan = serv.get_or_create_channel(str(message.channel.id), message.channel.name)
+                chan.on_user_joined(user)
             Logger.debug(f"{user.render_name()} >> {message.clean_content}")
             msg = Message(message.clean_content, Mode.TXT).env_user(user).env_server(serv).env_channel(chan)
             await msg.execute()
