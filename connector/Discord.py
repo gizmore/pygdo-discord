@@ -19,6 +19,9 @@ class Discord(Connector):
     def get_render_mode(self) -> Mode:
         return Mode.TXT
 
+    def gdo_needs_authentication(self) -> bool:
+        return False
+
     def gdo_connect(self) -> bool:
         from gdo.discord.module_discord import module_discord
         Logger.debug("Connecting to discord.")
