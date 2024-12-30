@@ -13,6 +13,8 @@ from gdo.discord.connector.DiscordClient import DiscordClient
 
 class Discord(Connector):
 
+    MAX_MSG_LEN: int = 1980  # gizmore birth year seems appropriate
+
     _client: DiscordClient
     _dog: GDO_User
 
@@ -44,7 +46,7 @@ class Discord(Connector):
         prefix = f'{message._env_user.render_name()}: ' if not message._thread_user else ''
         text = f"{prefix}{text}"
         chan = self._client.get_channel(int(channel.get_name()))
-        chunks = Strings.split_boundary(text, 3900)
+        chunks = Strings.split_boundary(text, self.MAX_MSG_LEN)
         for chunk in chunks:
             await chan.send(chunk)
 
@@ -53,5 +55,5 @@ class Discord(Connector):
         user = message._env_user
         Logger.debug(f"{user.render_name()} << {text}")
         if usr := user._network_user:
-            for chunk in Strings.split_boundary(text, 3900):
+            for chunk in Strings.split_boundary(text, self.MAX_MSG_LEN):
                 await usr.send(chunk)
