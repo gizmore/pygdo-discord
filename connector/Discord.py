@@ -50,7 +50,7 @@ class Discord(Connector):
         for chunk in chunks:
             await chan.send(chunk)
 
-    async def gdo_send_to_user(self, message: Message):
+    async def gdo_send_to_user(self, message: Message, notice: bool=False):
         text = message._result
         user = message._env_user
         Logger.debug(f"{user.render_name()} << {text}")
