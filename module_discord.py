@@ -70,6 +70,6 @@ class module_discord(GDO_Module):
         if not GDO_Server.get_by_connector('discord'):
             GDO_Server.blank({
                 'serv_name': 'Discord',
-                'serv_username': self.cfg_app_id(),
+                'serv_username': str(self.cfg_app_id()),
                 'serv_connector': 'discord',
             }).insert()
