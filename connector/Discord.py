@@ -24,7 +24,7 @@ class Discord(Connector):
     def gdo_needs_authentication(self) -> bool:
         return False
 
-    def gdo_connect(self) -> bool:
+    async def gdo_connect(self) -> bool:
         from gdo.discord.module_discord import module_discord
         Logger.debug("Connecting to discord.")
         intents = discord.Intents.default()
