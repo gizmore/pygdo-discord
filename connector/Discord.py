@@ -19,7 +19,7 @@ class Discord(Connector):
     _dog: GDO_User
 
     def get_render_mode(self) -> Mode:
-        return Mode.txt
+        return Mode.render_txt
 
     def gdo_needs_authentication(self) -> bool:
         return False
