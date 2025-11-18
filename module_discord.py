@@ -66,7 +66,7 @@ class module_discord(GDO_Module):
     def gdo_init(self):
         Connector.register(Discord)
 
-    def gdo_install(self):
+    async def gdo_install(self):
         if not GDO_Server.get_by_connector('discord'):
             GDO_Server.blank({
                 'serv_name': 'Discord',
