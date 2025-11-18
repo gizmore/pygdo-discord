@@ -48,5 +48,5 @@ class DiscordClient(discord.Client):
                 chan = serv.get_or_create_channel(str(message.channel.id), message.channel.name)
                 chan.on_user_joined(user)
             Logger.debug(f"{user.render_name()} >> {message.clean_content}")
-            msg = Message(message.clean_content, Mode.TXT).env_user(user, True).env_server(serv).env_channel(chan)
+            msg = Message(message.clean_content, Mode.txt).env_user(user, True).env_server(serv).env_channel(chan)
             await msg.execute()
