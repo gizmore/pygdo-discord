@@ -31,8 +31,8 @@ class DiscordClient(discord.Client):
         Logger.debug("Connected to Discord!")
         dog = await self.get_server().get_or_create_user(str(self.user.id), self.user.name)
         dog.save_val('user_type', GDT_UserType.CHAPPY)
-        GDO_UserPermission.grant(dog, GDO_Permission.ADMIN)
-        GDO_UserPermission.grant(dog, GDO_Permission.STAFF)
+        await GDO_UserPermission.grant(dog, GDO_Permission.ADMIN)
+        await GDO_UserPermission.grant(dog, GDO_Permission.STAFF)
         self._connector._dog = dog
 
     async def on_message(self, message):
@@ -45,7 +45,7 @@ class DiscordClient(discord.Client):
             chan = None
             if message.channel.type != discord.ChannelType.private:
                 chan = serv.get_or_create_channel(str(message.channel.id), message.channel.name)
-                chan.on_user_joined(user)
+                await chan.on_user_joined(user)
             Logger.debug(f"{user.render_name()} >> {message.clean_content}")
             msg = Message(message.clean_content, Mode.render_txt).env_user(user, True).env_server(serv).env_channel(chan)
             await msg.execute()
