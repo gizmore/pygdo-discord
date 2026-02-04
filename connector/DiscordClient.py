@@ -41,11 +41,11 @@ class DiscordClient(discord.Client):
         serv = self.get_server()
         user = await serv.get_or_create_user(str(message.author.id), message.author.display_name)
         user._network_user = message.author
+        Logger.debug(f"{user.render_name()} >> {message.clean_content}")
         if self._connector.gdo_get_dog_user() != user:
             chan = None
             if message.channel.type != discord.ChannelType.private:
                 chan = serv.get_or_create_channel(str(message.channel.id), message.channel.name)
                 await chan.on_user_joined(user)
-            Logger.debug(f"{user.render_name()} >> {message.clean_content}")
             msg = Message(message.clean_content, Mode.render_txt).env_user(user, True).env_server(serv).env_channel(chan)
             await msg.execute()
