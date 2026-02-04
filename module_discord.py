@@ -40,6 +40,9 @@ class module_discord(GDO_Module):
             GDT_Secret('discord_client').initial(client),
             GDT_Secret('discord_token').initial(token),
             GDT_String('discord_oauth').initial(oauth),
+            GDT_String('invite_code').initial('ftWTRs3QQG'),
+            GDT_String('bot_display_name').initial('Dog'),
+            GDT_String('channel_display_name').initial('Shadowlamb'),
         ]
 
     def cfg_app_id(self) -> str:

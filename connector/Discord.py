@@ -5,7 +5,7 @@ import discord
 from gdo.base.Logger import Logger
 from gdo.base.Message import Message
 from gdo.base.Render import Mode
-from gdo.base.Util import Strings
+from gdo.base.Util import Strings, module_config_value
 from gdo.core.Connector import Connector
 from gdo.core.GDO_User import GDO_User
 from gdo.discord.connector.DiscordClient import DiscordClient
@@ -17,6 +17,9 @@ class Discord(Connector):
 
     _client: DiscordClient
     _dog: GDO_User
+
+    def render_user_connect_help(self) -> str:
+        return f'<a href="https://discord.gg/{module_config_value('discord', 'invite_code')}">{module_config_value('discord', 'channel_display_name')}</a> ({module_config_value('discord', 'bot_display_name')})'
 
     def get_render_mode(self) -> Mode:
         return Mode.render_txt
