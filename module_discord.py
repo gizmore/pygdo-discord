@@ -25,12 +25,12 @@ class module_discord(GDO_Module):
             path = self.file_path('secret.toml')
             with open(path, 'r') as file:
                 toml = tomlkit.load(file)
-                app_id = toml['app_id']
-                pubkey = toml['pubkey']
-                secret = toml['secret']
-                client = toml['client']
-                token = toml['token']
-                oauth = toml['oauth']
+                app_id = toml.get('app_id', '')
+                pubkey = toml.get('pubkey', '')
+                secret = toml.get('secret', '')
+                client = toml.get('client', '')
+                token = toml.get('token', '')
+                oauth = toml.get('oauth', '')
         except FileNotFoundError:
             pass
         return [
