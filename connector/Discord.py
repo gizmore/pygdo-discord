@@ -57,6 +57,13 @@ class Discord(Connector):
         text = message._result
         user = message._env_user
         Logger.debug(f"{user.render_name()} << {text}")
-        if usr := user._network_user:
-            for chunk in Strings.split_boundary(text, self.MAX_MSG_LEN):
-                await usr.send(chunk)
+        usr = user._network_user
+        if usr is None:
+            try:
+                usr = await self._client.fetch_user(int(user.get_name()))
+                user._network_user = usr
+            except (ValueError, discord.HTTPException) as ex:
+                Logger.error(f"Cannot resolve Discord DM user {user.get_name()}: {ex}")
+                return
+        for chunk in Strings.split_boundary(text, self.MAX_MSG_LEN):
+            await usr.send(chunk)
