@@ -42,6 +42,8 @@ class DiscordClient(discord.Client):
         user = await serv.get_or_create_user(str(message.author.id), message.author.display_name)
         user._network_user = message.author
         Logger.debug(f"{user.render_name()} >> {message.clean_content}")
+        # Discord may deliver a message around reconnect before on_ready() has
+        # populated the Dog account. A None marker is safe and avoids a race.
         if self._connector.gdo_get_dog_user() != user:
             chan = None
             if message.channel.type != discord.ChannelType.private:

@@ -17,13 +17,13 @@ class Discord(Connector):
 
     _client: DiscordClient
     _client_task: asyncio.Task|None
-    _dog: GDO_User
+    _dog: GDO_User|None
 
     def render_user_connect_help(self) -> str:
         return f'<a href="https://discord.gg/{module_config_value('discord', 'invite_code')}">{module_config_value('discord', 'channel_display_name')}</a> ({module_config_value('discord', 'bot_display_name')})'
 
     def get_render_mode(self) -> Mode:
-        return Mode.render_txt
+        return Mode.render_markdown
 
     def gdo_needs_authentication(self) -> bool:
         return False
@@ -32,6 +32,7 @@ class Discord(Connector):
         super().__init__()
         self._client = None
         self._client_task = None
+        self._dog = None
 
     async def gdo_connect(self) -> bool:
         from gdo.discord.module_discord import module_discord
@@ -57,7 +58,7 @@ class Discord(Connector):
         self._client_task = None
         self._client = None
 
-    def gdo_get_dog_user(self) -> GDO_User:
+    def gdo_get_dog_user(self) -> GDO_User|None:
         return self._dog
 
     async def gdo_send_to_channel(self, message: Message):
@@ -83,5 +84,8 @@ class Discord(Connector):
             except (ValueError, discord.HTTPException) as ex:
                 Logger.error(f"Cannot resolve Discord DM user {user.get_name()}: {ex}")
                 return
-        for chunk in Strings.split_boundary(text, self.MAX_MSG_LEN):
-            await usr.send(chunk)
+        try:
+            for chunk in Strings.split_boundary(text, self.MAX_MSG_LEN):
+                await usr.send(chunk)
+        except discord.HTTPException as ex:
+            Logger.error(f"Cannot send Discord DM to {user.get_name()}: {ex}")
