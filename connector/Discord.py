@@ -16,6 +16,7 @@ class Discord(Connector):
     MAX_MSG_LEN: int = 1980  # gizmore birth year seems appropriate
 
     _client: DiscordClient
+    _client_task: asyncio.Task|None
     _dog: GDO_User
 
     def render_user_connect_help(self) -> str:
@@ -27,6 +28,11 @@ class Discord(Connector):
     def gdo_needs_authentication(self) -> bool:
         return False
 
+    def __init__(self):
+        super().__init__()
+        self._client = None
+        self._client_task = None
+
     async def gdo_connect(self) -> bool:
         from gdo.discord.module_discord import module_discord
         Logger.debug("Connecting to discord.")
@@ -35,9 +41,21 @@ class Discord(Connector):
         intents.presences = True
         self._client = DiscordClient(intents=intents).connector(self)
         module = module_discord.instance()
-        asyncio.create_task(self._client.start(module.cfg_token(), reconnect=True))
+        self._client_task = asyncio.create_task(self._client.start(module.cfg_token(), reconnect=True))
         self._connected = True
         return True
+
+    async def gdo_disconnect(self, quit_message: str):
+        """Close discord.py explicitly so its internal reconnect loop stops."""
+        if self._client and not self._client.is_closed():
+            await self._client.close()
+        if self._client_task and not self._client_task.done():
+            try:
+                await asyncio.wait_for(self._client_task, timeout=5)
+            except TimeoutError:
+                self._client_task.cancel()
+        self._client_task = None
+        self._client = None
 
     def gdo_get_dog_user(self) -> GDO_User:
         return self._dog
