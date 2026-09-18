@@ -48,6 +48,10 @@ class DiscordClient(discord.Client):
             chan = None
             if message.channel.type != discord.ChannelType.private:
                 chan = serv.get_or_create_channel(str(message.channel.id), message.channel.name)
+            # A message is a reliable presence observation even if Discord's
+            # optional member-intent events are unavailable to this bot.
+            await serv.on_user_joined(user, chan)
+            if chan:
                 await chan.on_user_joined(user)
             msg = Message(message.clean_content, Mode.render_txt).env_user(user, True).env_server(serv).env_channel(chan)
             await msg.execute()
