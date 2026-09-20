@@ -27,6 +27,12 @@ class DiscordClient(discord.Client):
     def get_server(self) -> GDO_Server:
         return self._connector._server
 
+    @staticmethod
+    def refresh_displayname(user, displayname: str):
+        """Persist a Discord-provided display name only when it changed."""
+        if displayname and user.get_displayname() != displayname:
+            user.save_val('user_displayname', displayname)
+
     async def on_ready(self):
         Logger.debug("Connected to Discord!")
         dog = await self.get_server().get_or_create_user(str(self.user.id), self.user.name)
@@ -40,6 +46,10 @@ class DiscordClient(discord.Client):
         Logger.debug("Incoming message")
         serv = self.get_server()
         user = await serv.get_or_create_user(str(message.author.id), message.author.display_name)
+        # Existing accounts may predate Discord's guild display name or have
+        # since been renamed. Keep the visible local identity current without
+        # writing on every message.
+        self.refresh_displayname(user, message.author.display_name)
         user._network_user = message.author
         Logger.debug(f"{user.render_name()} >> {message.clean_content}")
         # Discord may deliver a message around reconnect before on_ready() has
