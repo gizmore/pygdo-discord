@@ -1,1 +1,5 @@
 module_discord = "Discord"
+mt_discord_invite = "Discord invite"
+md_discord_invite = "Show the configured Discord invite link."
+discord_invite_link = "Discord: %s"
+discord_invite_missing = "No valid Discord invite code is configured."
