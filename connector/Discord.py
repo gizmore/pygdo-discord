@@ -65,7 +65,8 @@ class Discord(Connector):
         text = message._result
         channel = message._env_channel
         Logger.debug(f"{channel.render_name()} << {text}")
-        prefix = f'{message._env_user.get_displayname()}: ' if message.wants_sender_prefix() else ''
+        sender = message._env_reply_to or message._env_user
+        prefix = f'{sender.get_displayname()}: ' if sender and message.wants_sender_prefix() else ''
         text = f"{prefix}{text}"
         chan = self._client.get_channel(int(channel.get_name()))
         chunks = Strings.split_boundary(text, self.MAX_MSG_LEN)
