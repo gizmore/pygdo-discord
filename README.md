@@ -5,6 +5,10 @@ Discord connector for the PyGDO chatbot.
 Discord invite link. Configure an invite intended for public sharing; the
 method does not create or verify invites.
 
+To watch a screen share, join the server and the voice channel containing a
+LIVE broadcaster, select their name, and choose **Watch Stream**. Joining the
+voice channel alone does not open the stream. See [Discord's Go Live help](https://support.discord.com/hc/en-us/articles/360040816151-Go-Live-and-Screen-Share).
+
 Discord voice/stage channel joins, moves and departures map to PyGDO channel
 join/left events. Mute changes do not. These events indicate voice membership,
 not whether someone is watching a screen share. Discord does not expose normal
