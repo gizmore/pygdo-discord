@@ -41,6 +41,38 @@ class DiscordClient(discord.Client):
         await GDO_UserPermission.grant(dog, GDO_Permission.STAFF)
         self._connector._dog = dog
 
+    async def _member_user(self, member):
+        server = self.get_server()
+        user = await server.get_or_create_user(str(member.id), member.display_name)
+        self.refresh_displayname(user, member.display_name)
+        user._network_user = member
+        return user
+
+    async def on_member_join(self, member):
+        user = await self._member_user(member)
+        await self.get_server().on_user_joined(user)
+        await Application.EVENTS.publish('discord_member_joined', user, str(member.guild.id))
+
+    async def on_member_remove(self, member):
+        user = await self._member_user(member)
+        # Discord guild membership is not the same as network-wide presence.
+        # Keep it distinct: a user may remain in another guild or be uncached.
+        await Application.EVENTS.publish('discord_member_left', user, str(member.guild.id))
+
+    async def on_voice_state_update(self, member, before, after):
+        old, new = before.channel, after.channel
+        if getattr(old, 'id', None) == getattr(new, 'id', None):
+            return
+        server = self.get_server()
+        user = await self._member_user(member)
+        if old is not None:
+            channel = server.get_or_create_channel(str(old.id), old.name)
+            await channel.on_user_left(user)
+        if new is not None:
+            channel = server.get_or_create_channel(str(new.id), new.name)
+            await server.on_user_joined(user, channel)
+            await channel.on_user_joined(user)
+
     async def on_message(self, message):
         Application.tick()
         Logger.debug("Incoming message")

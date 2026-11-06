@@ -6,6 +6,7 @@ from gdo.core.Connector import Connector
 from gdo.core.GDO_Server import GDO_Server
 from gdo.core.GDT_Secret import GDT_Secret
 from gdo.core.GDT_String import GDT_String
+from gdo.core.GDT_Bool import GDT_Bool
 from gdo.discord.connector.Discord import Discord
 
 
@@ -43,6 +44,7 @@ class module_discord(GDO_Module):
             GDT_String('invite_code').initial('ftWTRs3QQG'),
             GDT_String('bot_display_name').initial('Dog'),
             GDT_String('channel_display_name').initial('Shadowlamb'),
+            GDT_Bool('member_intent').initial('0').tooltip('tt_discord_member_intent'),
         ]
 
     def cfg_app_id(self) -> str:
@@ -62,6 +64,9 @@ class module_discord(GDO_Module):
 
     def cfg_oauth_url(self) -> str:
         return self.get_config_val('discord_oauth')
+
+    def cfg_member_intent(self) -> bool:
+        return bool(self.get_config_value('member_intent'))
 
     ##########
     # Module #

@@ -40,6 +40,8 @@ class Discord(Connector):
         intents = discord.Intents.default()
         intents.message_content = True
         intents.presences = True
+        intents.members = module_discord.instance().cfg_member_intent()
+        intents.voice_states = True
         self._client = DiscordClient(intents=intents).connector(self)
         module = module_discord.instance()
         self._client_task = asyncio.create_task(self._client.start(module.cfg_token(), reconnect=True))
