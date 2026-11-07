@@ -1,4 +1,6 @@
 import unittest
+import tomllib
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from gdo.discord.method.invite import invite
@@ -7,6 +9,14 @@ from gdo.base.Render import Mode
 
 
 class InviteTest(unittest.TestCase):
+    def test_invite_explains_how_to_watch(self):
+        language_file = Path(__file__).resolve().parents[1] / 'lang' / 'discord_en.toml'
+        with language_file.open('rb') as source:
+            message = tomllib.load(source)['discord_invite_link']
+        self.assertIn('%s', message)
+        self.assertIn('hover', message)
+        self.assertIn('shared screen', message)
+
     def setUp(self):
         Application.mode(Mode.render_cli)
 

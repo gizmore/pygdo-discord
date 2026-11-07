@@ -1,4 +1,9 @@
 from typing import TYPE_CHECKING
+from pathlib import Path
+from uuid import uuid4
+from io import BytesIO
+
+from PIL import Image
 
 import discord
 
@@ -9,6 +14,7 @@ from gdo.core.GDO_Permission import GDO_Permission
 from gdo.core.GDO_Server import GDO_Server
 from gdo.core.GDO_UserPermission import GDO_UserPermission
 from gdo.core.GDT_UserType import GDT_UserType
+from gdo.core.GDO_File import GDO_File
 
 if TYPE_CHECKING:
     from gdo.discord.connector.Discord import Discord
@@ -17,6 +23,46 @@ from gdo.base.Logger import Logger
 
 
 class DiscordClient(discord.Client):
+
+    IMAGE_MAX_BYTES = 10 * 1024 * 1024
+    IMAGE_MAX_COUNT = 4
+    IMAGE_TYPES = {'image/jpeg', 'image/png', 'image/gif', 'image/webp'}
+
+    @classmethod
+    async def image_notices(cls, attachments):
+        """Store bounded Discord image attachments and return local references."""
+        notices = []
+        images = [item for item in attachments if (item.content_type or '').split(';', 1)[0].lower() in cls.IMAGE_TYPES]
+        for item in images[:cls.IMAGE_MAX_COUNT]:
+            if not isinstance(item.size, int) or item.size < 1 or item.size > cls.IMAGE_MAX_BYTES:
+                notices.append('[Discord image skipped: invalid or excessive size]')
+                continue
+            target = None
+            try:
+                data = await item.read()
+                if not data or len(data) > cls.IMAGE_MAX_BYTES:
+                    raise ValueError('invalid image size')
+                with Image.open(BytesIO(data)) as image:
+                    if image.format not in ('JPEG', 'PNG', 'GIF', 'WEBP'):
+                        raise ValueError('invalid image format')
+                    image.verify()
+                directory = Path(Application.temp_path('discord/images'))
+                directory.mkdir(parents=True, exist_ok=True)
+                target = directory / uuid4().hex
+                target.write_bytes(data)
+                file = GDO_File.from_path(str(target), delete=True)
+                file.set_val('file_name', Path(item.filename or 'image').name)
+                file = file.insert()
+                notices.append(f'[Discord image received: file://{file.get_path()} (file #{file.get_id()})]')
+            except (OSError, ValueError, discord.DiscordException, Image.DecompressionBombError) as error:
+                Logger.warning(f'Discord image download failed: {type(error).__name__}')
+                notices.append('[Discord image unavailable]')
+            finally:
+                if target is not None:
+                    target.unlink(missing_ok=True)
+        if len(images) > cls.IMAGE_MAX_COUNT:
+            notices.append('[Additional Discord images skipped]')
+        return notices
 
     _connector: 'Discord'
 
@@ -95,5 +141,9 @@ class DiscordClient(discord.Client):
             await serv.on_user_joined(user, chan)
             if chan:
                 await chan.on_user_joined(user)
-            msg = Message(message.clean_content, Mode.render_txt).env_user(user, True).env_server(serv).env_channel(chan)
+            notices = await self.image_notices(message.attachments)
+            text = '\n'.join(part for part in (message.clean_content, *notices) if part)
+            if not text:
+                return
+            msg = Message(text, Mode.render_txt).env_user(user, True).env_server(serv).env_channel(chan)
             await msg.execute()

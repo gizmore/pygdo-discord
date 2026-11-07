@@ -1,7 +1,7 @@
 module_discord = "Discord"
 mt_discord_invite = "Discord invite"
 md_discord_invite = "Show the Discord invite. To watch a screen share, join the server and the voice channel with a LIVE badge, select the broadcaster, then choose Watch Stream. Joining voice alone does not open the stream."
-discord_invite_link = "Discord: %s"
+discord_invite_link = "Discord: %s — In the voice channel, hover over the user and click their shared screen to watch."
 discord_invite_missing = "No valid Discord invite code is configured."
 cfg_member_intent = "Discord member events"
 tt_discord_member_intent = "Enable the privileged server member intent only after enabling it in the Discord developer portal. Reconnect required."
