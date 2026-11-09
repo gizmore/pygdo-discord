@@ -68,3 +68,23 @@ class DiscordEventsTest(unittest.IsolatedAsyncioTestCase):
             self.server.on_user_quit.assert_not_called()
             self.assertEqual(events.publish.await_args_list[0].args, ('discord_member_joined', self.user, '42'))
             self.assertEqual(events.publish.await_args_list[1].args, ('discord_member_left', self.user, '42'))
+
+    async def test_only_normal_gateway_messages_trust_discord_identity(self):
+        import discord
+        for webhook_id, expected in ((None, True), (123, False)):
+            with self.subTest(webhook_id=webhook_id):
+                raw = SimpleNamespace(author=SimpleNamespace(id=7, display_name='Alice'),
+                                      channel=SimpleNamespace(type=discord.ChannelType.private),
+                                      webhook_id=webhook_id, attachments=[], clean_content='hello')
+                message = MagicMock()
+                message.env_user.return_value = message
+                message.env_server.return_value = message
+                message.env_channel.return_value = message
+                message.execute = AsyncMock()
+                self.client._connector.gdo_get_dog_user.return_value = None
+                with patch('gdo.discord.connector.DiscordClient.Message', return_value=message), \
+                        patch('gdo.discord.connector.DiscordClient.Application.tick'), \
+                        patch('gdo.discord.connector.DiscordClient.Logger.debug'):
+                    await self.client.on_message(raw)
+                self.assertEqual(expected, message._platform_authenticated)
+                message.execute.assert_awaited_once()
