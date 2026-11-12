@@ -148,8 +148,5 @@ class DiscordClient(discord.Client):
             msg = Message(text, Mode.render_txt).env_user(user, True).env_server(serv).env_channel(chan)
             # Gateway messages identify the sending Discord account. Webhook
             # messages can impersonate display names and are not user logins.
-            msg._platform_authenticated = (message.webhook_id is None and
-                                           isinstance(message.author.id, int) and
-                                           not isinstance(message.author.id, bool) and
-                                           message.author.id > 0)
+            msg.platform_identity(message.author.id, trusted=message.webhook_id is None)
             await msg.execute()

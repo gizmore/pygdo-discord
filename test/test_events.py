@@ -86,5 +86,5 @@ class DiscordEventsTest(unittest.IsolatedAsyncioTestCase):
                         patch('gdo.discord.connector.DiscordClient.Application.tick'), \
                         patch('gdo.discord.connector.DiscordClient.Logger.debug'):
                     await self.client.on_message(raw)
-                self.assertEqual(expected, message._platform_authenticated)
+                message.platform_identity.assert_called_once_with(7, trusted=expected)
                 message.execute.assert_awaited_once()
